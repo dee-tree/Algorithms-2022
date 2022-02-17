@@ -2,6 +2,8 @@
 
 package lesson1
 
+import java.io.File
+
 /**
  * Сортировка времён
  *
@@ -97,7 +99,16 @@ fun sortAddresses(inputName: String, outputName: String) {
  * 121.3
  */
 fun sortTemperatures(inputName: String, outputName: String) {
-    TODO()
+    /*
+        time complexity: O(n*log(n))
+        space complexity: O(n)
+     */
+
+    File(inputName).useLines { lines ->
+        lines.map { it.toDouble() }
+            .sorted()
+            .joinToString(System.lineSeparator())
+    }.let { File(outputName).writeText(it) }
 }
 
 /**
@@ -130,7 +141,25 @@ fun sortTemperatures(inputName: String, outputName: String) {
  * 2
  */
 fun sortSequence(inputName: String, outputName: String) {
-    TODO()
+    /*
+        time complexity: O(n)
+        space complexity: O(n)
+     */
+
+    val inputLines = File(inputName).readLines()
+
+    val mostCommonDecimalEntry = inputLines.map { it.toInt() }.groupingBy { it }
+        .eachCount()
+        .maxWithOrNull(compareBy<Map.Entry<Int, Int>> { it.value }.thenByDescending { it.key })
+
+    File(outputName).writeText(
+        inputLines
+            .filterNot { it == mostCommonDecimalEntry?.key.toString() }
+            .plus(List(mostCommonDecimalEntry?.value ?: 0) { mostCommonDecimalEntry?.key })
+            .joinToString(System.lineSeparator())
+    )
+
+
 }
 
 /**
