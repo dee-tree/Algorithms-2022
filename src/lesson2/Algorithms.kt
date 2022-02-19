@@ -2,6 +2,9 @@
 
 package lesson2
 
+import kotlin.math.ceil
+import kotlin.math.sqrt
+
 /**
  * Получение наибольшей прибыли (она же -- поиск максимального подмассива)
  * Простая
@@ -95,7 +98,33 @@ fun josephTask(menNumber: Int, choiceInterval: Int): Int {
  * вернуть ту из них, которая встречается раньше в строке first.
  */
 fun longestCommonSubstring(first: String, second: String): String {
-    TODO()
+    /*
+    n,m - words lengths
+        time complexity: O(n*m)
+        space complexity: O(n*m)
+     */
+
+    val table = Array(first.length) { IntArray(second.length) }
+
+    var (maxI, maxJ) = 0 to 0
+
+    for (i in table.indices) {
+        for (j in table[i].indices) {
+            table[i][j] = if (first[i] == second[j]) 1 + (table.getOrNull(i - 1)?.getOrNull(j - 1) ?: 0) else 0
+
+            if (table[i][j] > table[maxI][maxJ]) {
+                maxI = i
+                maxJ = j
+            }
+        }
+    }
+
+
+
+    if ((table.getOrNull(maxI)?.getOrNull(maxJ) ?: 0) == 0) return ""
+
+    return first.substring((maxI - table[maxI][maxJ] + 1)..maxI)
+
 }
 
 /**
@@ -109,5 +138,21 @@ fun longestCommonSubstring(first: String, second: String): String {
  * Единица простым числом не считается.
  */
 fun calcPrimesNumber(limit: Int): Int {
-    TODO()
+    /*
+        time complexity: O(n)
+        space complexity: O(n)
+     */
+
+    val sieve = BooleanArray(limit + 1) { true }
+    // skip and forget [0], [1], [2 + 2k, k >= 1
+    val upper = ceil(sqrt(limit.toDouble())).toInt()
+    for (i in 3..upper step 2) { // just optimization to skip all evens
+        if (sieve[i]) {
+            for (j in (2 * i)..limit step i)
+                sieve[j] = false
+        }
+    }
+
+    //     take all primes from 3 to limit skipping evens, then plus 1 (which means prime number 2) if limit >= 2
+    return sieve.slice(3..limit step 2).count { it }.let { if (limit >= 2) it + 1 else it }
 }
