@@ -100,15 +100,24 @@ fun sortAddresses(inputName: String, outputName: String) {
  */
 fun sortTemperatures(inputName: String, outputName: String) {
     /*
-        time complexity: O(n*log(n))
-        space complexity: O(n)
+        time complexity: O(n)
+        space complexity: O(1)
      */
+    val allTemps = Array((273 + 500 + 1) * 10) { 0 }
 
     File(inputName).useLines { lines ->
-        lines.map { it.toDouble() }
-            .sorted()
-            .joinToString(System.lineSeparator())
-    }.let { File(outputName).writeText(it) }
+        //              convert temperature to index of array (multiplied by 10 to achieve int and made positive)
+        lines.forEach { allTemps[(it.toDouble() * 10).toInt() + 2730]++ }
+    }
+
+    File(outputName).bufferedWriter().use { writer ->
+        allTemps.forEachIndexed { idx, temp ->
+            repeat(temp) {
+                // convert index to temperature (reduced by the difference of negatives fix and made as floating point with "/ 10.0")
+                writer.appendLine(((idx - 2730) / 10.0).toString())
+            }
+        }
+    }
 }
 
 /**

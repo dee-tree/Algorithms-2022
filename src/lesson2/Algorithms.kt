@@ -101,29 +101,36 @@ fun longestCommonSubstring(first: String, second: String): String {
     /*
     n,m - words lengths
         time complexity: O(n*m)
-        space complexity: O(n*m)
+        space complexity: O(n)
      */
 
-    val table = Array(first.length) { IntArray(second.length) }
+    val lens = Array(2) { Array(second.length) { 0 } }
+    var maxLen = 0
+    var maxLenIdx = -1
 
-    var (maxI, maxJ) = 0 to 0
+    var current = 0
 
-    for (i in table.indices) {
-        for (j in table[i].indices) {
-            table[i][j] = if (first[i] == second[j]) 1 + (table.getOrNull(i - 1)?.getOrNull(j - 1) ?: 0) else 0
 
-            if (table[i][j] > table[maxI][maxJ]) {
-                maxI = i
-                maxJ = j
+    for (i in first.indices) {
+        for (j in second.indices) {
+            val currentCharSame = (first[i] == second[j])
+
+            if (currentCharSame) {
+                lens[current][j] = if (i == 0 || j == 0) 1 else lens[1 - current][j - 1] + 1
+
+                if (lens[current][j] > maxLen) {
+                    maxLen = lens[current][j]
+                    maxLenIdx = i
+                }
+            } else {
+                lens[current][j] = 0
             }
         }
+
+        current = 1 - current
     }
 
-
-
-    if ((table.getOrNull(maxI)?.getOrNull(maxJ) ?: 0) == 0) return ""
-
-    return first.substring((maxI - table[maxI][maxJ] + 1)..maxI)
+    return if (maxLenIdx == -1) "" else first.substring(maxLenIdx - maxLen + 1..maxLenIdx)
 
 }
 
@@ -139,7 +146,7 @@ fun longestCommonSubstring(first: String, second: String): String {
  */
 fun calcPrimesNumber(limit: Int): Int {
     /*
-        time complexity: O(n)
+        time complexity: O(n log(log n))
         space complexity: O(n)
      */
 
@@ -148,7 +155,7 @@ fun calcPrimesNumber(limit: Int): Int {
     val upper = ceil(sqrt(limit.toDouble())).toInt()
     for (i in 3..upper step 2) { // just optimization to skip all evens
         if (sieve[i]) {
-            for (j in (2 * i)..limit step i)
+            for (j in (i * i)..limit step i)
                 sieve[j] = false
         }
     }
