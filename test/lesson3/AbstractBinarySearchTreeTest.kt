@@ -1,11 +1,11 @@
 package lesson3
 
+import org.junit.jupiter.api.assertDoesNotThrow
+import org.junit.jupiter.api.assertThrows
 import java.util.*
+import kotlin.NoSuchElementException
 import kotlin.math.abs
 import kotlin.test.*
-import org.junit.jupiter.api.assertDoesNotThrow
-import kotlin.IllegalStateException
-import kotlin.NoSuchElementException
 
 abstract class AbstractBinarySearchTreeTest {
 
@@ -164,6 +164,41 @@ abstract class AbstractBinarySearchTreeTest {
         }
     }
 
+    protected fun `do removeTest in empty set`() {
+        val empty = create()
+
+        assertFalse { empty.remove(0) }
+
+        assertTrue { empty.size == 0 }
+        assertFalse { empty.contains(0) }
+
+    }
+
+    protected fun `do removeTest in growing only set`() {
+        val controlSet = mutableSetOf<Int>()
+
+        val growingSet = create().apply {
+            val setSize = (2..100).random()
+
+            var accumulated = 0
+            repeat(setSize) {
+                accumulated += (1..1_000).random()
+                add(accumulated)
+                controlSet.add(accumulated)
+            }
+        }
+
+        val toRemove = controlSet.random()
+        controlSet.remove(toRemove)
+
+        assertTrue { growingSet.remove(toRemove) }
+        assertEquals(controlSet.size, growingSet.size)
+
+        for (element in controlSet) {
+            assertContains(growingSet, element)
+        }
+    }
+
     protected fun doIteratorTest() {
         implementationTest { create().iterator().hasNext() }
         implementationTest { create().iterator().next() }
@@ -205,6 +240,63 @@ abstract class AbstractBinarySearchTreeTest {
             }
             println("All clear!")
         }
+    }
+
+    protected fun `do iteratorTest with empty set`() {
+        val empty = create()
+
+        val iterator = empty.iterator()
+
+        assertFalse { iterator.hasNext() }
+        assertThrows<NoSuchElementException> { iterator.next() }
+    }
+
+    protected fun `do iteratorTest with growing only set`() {
+        val controlSet = mutableSetOf<Int>()
+
+        val growingSet = create().apply {
+            val setSize = (2..100).random()
+
+            var accumulated = 0
+            repeat(setSize) {
+                accumulated += (1..1_000).random()
+                add(accumulated)
+                controlSet.add(accumulated)
+            }
+        }
+
+        val controlIterator = controlSet.iterator()
+        val growingIterator = growingSet.iterator()
+
+        while (controlIterator.hasNext()) {
+            assertTrue { growingIterator.hasNext() }
+            assertEquals(controlIterator.next(), growingIterator.next())
+        }
+        assertFalse { growingIterator.hasNext() }
+    }
+
+    protected fun `do iteratorTest with decreasing only set`() {
+        val controlSet = sortedSetOf<Int>()
+
+        val decreasingSet = create().apply {
+            val setSize = (2..100).random()
+
+            var accumulated = 1_000_000
+            repeat(setSize) {
+                accumulated -= (1..1_000).random()
+                add(accumulated)
+                controlSet.add(accumulated)
+            }
+        }
+
+        val controlIterator = controlSet.iterator()
+        val decreasingIterator = decreasingSet.iterator()
+
+        while (controlIterator.hasNext()) {
+            assertTrue { decreasingIterator.hasNext() }
+            assertEquals(controlIterator.next(), decreasingIterator.next())
+        }
+        assertFalse { decreasingIterator.hasNext() }
     }
 
     protected fun doIteratorRemoveTest() {
@@ -272,6 +364,14 @@ abstract class AbstractBinarySearchTreeTest {
             }
             println("All clear!")
         }
+    }
+
+    protected fun `do iteratorRemoveTest from empty set`() {
+        val empty = create()
+
+        val iterator = empty.iterator()
+
+        assertThrows<IllegalStateException> { iterator.remove() }
     }
 
     protected fun doSubSetTest() {

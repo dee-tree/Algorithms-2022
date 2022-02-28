@@ -1,5 +1,6 @@
 package lesson3
 
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 
@@ -33,15 +34,45 @@ class KtBinarySearchTreeTest : AbstractBinarySearchTreeTest() {
     }
 
     @Test
+    fun `removeTest in empty set`() {
+        `do removeTest in empty set`()
+    }
+
+    @RepeatedTest(1_000)
+    fun `removeTest in growing only set`() {
+        `do removeTest in growing only set`()
+    }
+
+    @Test
     @Tag("5")
     fun iteratorTest() {
         doIteratorTest()
     }
 
     @Test
+    fun `iteratorTest with empty set`() {
+        `do iteratorTest with empty set`()
+    }
+
+    @RepeatedTest(1_000)
+    fun `iteratorTest with growing only set`() {
+        `do iteratorTest with growing only set`()
+    }
+
+    @RepeatedTest(1_000)
+    fun `iteratorTest with decreasing only set`() {
+        `do iteratorTest with decreasing only set`()
+    }
+
+    @Test
     @Tag("8")
     fun iteratorRemoveTest() {
         doIteratorRemoveTest()
+    }
+
+    @Test
+    fun `iteratorRemoveTest from empty set`() {
+        `do iteratorRemoveTest from empty set`()
     }
 
     @Test
