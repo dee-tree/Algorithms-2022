@@ -1,10 +1,13 @@
 package lesson3
 
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
+import ru.spbstu.kotlin.generate.assume.assume
 import java.util.*
 import kotlin.NoSuchElementException
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.test.*
 
 abstract class AbstractBinarySearchTreeTest {
@@ -406,9 +409,7 @@ abstract class AbstractBinarySearchTreeTest {
                         "An element of the subset was not removed."
                     )
                 } else {
-                    assertFailsWith<IllegalArgumentException>("An illegal argument was passed to remove() without raising an exception") {
-                        subSet.remove(element)
-                    }
+                    assertFalse("There is no $element in the subset! But it was removed!") { subSet.remove(element) }
                 }
             }
             val validAddition = toElement - 1
@@ -430,8 +431,10 @@ abstract class AbstractBinarySearchTreeTest {
             val initialSet = create()
             val fromElement = random.nextInt(50)
             val fromFromElement = fromElement + random.nextInt(10)
-            val toElement = random.nextInt(50) + 50
-            val toToElement = toElement - random.nextInt(10)
+            /* explain changes: it could throw exception because it's possible to be toToElements < fromFromElement.
+            * Currently it's guaranteed: fromElement <= fromFromElement <= toToElement <= toElement */
+            val toElement = random.nextInt(50) + 100
+            val toToElement = (fromFromElement..toElement).random()
             val subSet = initialSet.subSet(fromElement, toElement)
             val subSubSet = subSet.subSet(fromFromElement, toToElement)
             println("Checking if the subset from $fromElement to $toElement (nested $fromFromElement..$toToElement) is a valid view of the initial set...")
@@ -487,6 +490,71 @@ abstract class AbstractBinarySearchTreeTest {
         }
     }
 
+    protected fun `do subSet borders and ranges Test`() {
+        implementationTest { create().subSet(0, 0) }
+
+        val initialSet = create()
+
+        // set size range
+        repeat((1..50).random()) {
+            initialSet.add((1..100).random())
+        }
+
+        val randomBorder = (initialSet.minOf { it }..initialSet.maxOf { it }).random()
+
+
+        assertDoesNotThrow { initialSet.subSet(randomBorder, randomBorder) }
+        assertEquals(0, initialSet.subSet(randomBorder, randomBorder).size)
+        assertFailsWith<IllegalArgumentException> { initialSet.subSet(randomBorder + (1..10).random(), randomBorder) }
+
+    }
+
+    protected fun `subSet iterator Test`() {
+        implementationTest { create().subSet(0, 0) }
+
+        val controlSet = sortedSetOf<Int>()
+        val initialSet = create()
+
+        // set size range
+        repeat((1..50).random()) {
+            // set item value range
+            val nextInt = (1..100).random()
+            controlSet.add(nextInt)
+            initialSet.add(nextInt)
+        }
+
+        val from = (initialSet.minOf { it }..initialSet.maxOf { it }).random()
+        val to = (from..initialSet.maxOf { it }).random()
+
+        val subSet = initialSet.subSet(from, to)
+        val controlSubSet = controlSet.subSet(from, to)
+
+        val iterator1 = subSet.iterator()
+        val iterator2 = subSet.iterator()
+        println("Checking if calling hasNext() changes the state of the iterator...")
+        while (iterator1.hasNext()) {
+            assertEquals(
+                iterator2.next(), iterator1.next(),
+                "Calling BinarySearchTreeIterator.hasNext() changes the state of the iterator."
+            )
+        }
+
+        val subSetIter = subSet.iterator()
+        val controlSubSetIter = controlSubSet.iterator()
+
+        println("Checking if the iterator traverses the tree correctly...")
+        while (controlSubSetIter.hasNext()) {
+            assertEquals(
+                controlSubSetIter.next(), subSetIter.next(),
+                "BinarySearchTreeIterator doesn't traverse the tree correctly."
+            )
+        }
+        assertFailsWith<NoSuchElementException>("Something was supposedly returned after the elements ended") {
+            subSetIter.next()
+        }
+        println("All clear!")
+    }
+
     protected fun doSubSetFirstAndLastTest() {
         implementationTest { create().subSet(0, 0).first() }
         implementationTest { create().subSet(0, 0).last() }
@@ -516,29 +584,13 @@ abstract class AbstractBinarySearchTreeTest {
             val fromElement = random.nextInt(50)
             val toElement = random.nextInt(50) + 50
             val controlSubSet = controlSet.subSet(fromElement, toElement)
-            val expectedFirst = try {
-                controlSubSet.first()
-            } catch (e: NoSuchElementException) {
-                null
-            }
-            val expectedLast = try {
-                controlSubSet.last()
-            } catch (e: NoSuchElementException) {
-                null
-            }
+            val expectedFirst = controlSubSet.firstOrNull()
+            val expectedLast = controlSubSet.lastOrNull()
             println("Control set: $controlSet")
             println("Control subset: $controlSubSet")
             val subSet = binarySet.subSet(fromElement, toElement)
-            val actualFirst = try {
-                subSet.first()
-            } catch (e: NoSuchElementException) {
-                null
-            }
-            val actualLast = try {
-                subSet.last()
-            } catch (e: NoSuchElementException) {
-                null
-            }
+            val actualFirst = subSet.firstOrNull()
+            val actualLast = subSet.lastOrNull()
             assertEquals(
                 expectedFirst, actualFirst,
                 "The first element was determined incorrectly: was $actualFirst, should've been $expectedFirst."

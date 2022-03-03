@@ -87,6 +87,16 @@ class KtBinarySearchTreeTest : AbstractBinarySearchTreeTest() {
         doSubSetRelationTest()
     }
 
+    @RepeatedTest(1_000)
+    fun `subSet borders and ranges Test`() {
+        `do subSet borders and ranges Test`()
+    }
+
+    @RepeatedTest(1_000)
+    fun `subSet operations Test`() {
+        `subSet iterator Test`()
+    }
+
     @Test
     @Tag("7")
     fun subSetFirstAndLastTest() {

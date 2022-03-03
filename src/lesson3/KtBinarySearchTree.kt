@@ -319,7 +319,7 @@ open class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Chec
 
         init {
             if (fromElement > toElementExclusively)
-                throw IllegalArgumentException("fromElements can't be greater than toElement!")
+                throw IllegalArgumentException("fromElement $fromElement can't be greater than toElement $toElementExclusively!")
         }
 
         override val size: Int
