@@ -1,6 +1,7 @@
 package lesson3
 
 import java.util.*
+import kotlin.ConcurrentModificationException
 import kotlin.NoSuchElementException
 import kotlin.math.max
 
@@ -162,7 +163,11 @@ open class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Chec
             }
         }
 
-        private var current: T? = null
+        /**
+         * #parentOfCurrentNode property is needed for handling of nodes replacement in iterator remove
+         */
+        private var parentOfCurrentNode: Node<T>? = null
+        private var currentNode: Node<T>? = null
 
         /**
          * Проверка наличия следующего элемента
@@ -190,17 +195,21 @@ open class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Chec
          * Средняя
          */
         override fun next(): T {
-            val current: Node<T>
+            parentOfCurrentNode = currentNode
+
             try {
-                current = iterationStack.pop()
+                currentNode = iterationStack.pop()
+
+                if (!iterationStack.empty()) {
+                    parentOfCurrentNode = iterationStack.peek()
+                }
             } catch (e: EmptyStackException) {
                 throw NoSuchElementException("All elements of the set was already returned!")
             }
 
-            this.current = current.value
 
-            current.right?.fillIterationStack()
-            return current.value
+            currentNode!!.right?.fillIterationStack()
+            return currentNode!!.value
         }
 
         /**
@@ -215,9 +224,19 @@ open class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Chec
          *
          * Сложная
          */
-        override fun remove() = current?.let {
-            remove(it)
-            current = null
+        override fun remove() = currentNode?.let {
+            it.removeNode(it.value).also { (newNode, successfulRemoval) ->
+                parentOfCurrentNode?.let { parentNode ->
+                    if (parentNode.value < it.value)
+                        parentNode.right = newNode
+                    else
+                        parentNode.left = newNode
+                } ?: run { root = newNode }
+
+                if (successfulRemoval) _size-- else throw ConcurrentModificationException()
+            }
+
+            currentNode = null
         } ?: throw IllegalStateException("Current element does not exist!")
 
     }
