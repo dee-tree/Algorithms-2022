@@ -199,9 +199,10 @@ open class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Chec
 
             try {
                 currentNode = iterationStack.pop()
-
                 if (!iterationStack.empty()) {
                     parentOfCurrentNode = iterationStack.peek()
+                } else if (currentNode == root) {
+                    parentOfCurrentNode = null
                 }
             } catch (e: EmptyStackException) {
                 throw NoSuchElementException("All elements of the set was already returned!")
