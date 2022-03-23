@@ -13,8 +13,6 @@ open class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Chec
         var right: Node<T>? = null
     }
 
-    fun print() = BTreePrinter.printNode(root)
-
     protected open var root: Node<T>? = null
 
     private var _size = 0

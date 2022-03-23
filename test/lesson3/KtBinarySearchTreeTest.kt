@@ -71,7 +71,6 @@ class KtBinarySearchTreeTest : AbstractBinarySearchTreeTest() {
     }
 
     @RepeatedTest(100)
-//    @Tag("Just iteratorRemoveTest, but with more iterations")
     fun iteratorRemoveRepeatedTest() {
         doIteratorRemoveTest()
     }
