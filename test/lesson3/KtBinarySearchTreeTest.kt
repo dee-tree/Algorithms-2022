@@ -70,7 +70,7 @@ class KtBinarySearchTreeTest : AbstractBinarySearchTreeTest() {
         doIteratorRemoveTest()
     }
 
-    @RepeatedTest(1_000)
+    @RepeatedTest(100)
 //    @Tag("Just iteratorRemoveTest, but with more iterations")
     fun iteratorRemoveRepeatedTest() {
         doIteratorRemoveTest()
@@ -109,58 +109,6 @@ class KtBinarySearchTreeTest : AbstractBinarySearchTreeTest() {
         doSubSetFirstAndLastTest()
     }
 
-    @Test
-    fun s() {
-
-        //TODO DIMA TEST ME 25, 93, 15, 67, 20, 25, 82, 67, 57, 78, 82, 95, 48, 55, 14, 11, 20, 42, 71, 8. I am cycled
-        val dataset = listOf(56, 56, 18, 28, 61, 54, 42, 42, 73, 90, 47, 53, 73, 99, 21, 42, 3, 18, 96, 81)
-
-        val tree = KtBinarySearchTree<Int>()
-
-        tree.addAll(dataset)
-
-        println("Before count: ${tree.size}")
-        tree.print()
-
-        var maxIterator = tree.iterator()
-
-        maxIterator.hasNext()
-
-        var cnt = 0
-
-        while (maxIterator.hasNext()) {
-            val next = maxIterator.next()
-            cnt++
-            println(next)
-
-            if (next == 28)
-                break
-        }
-
-        maxIterator.remove()
-
-        while(maxIterator.hasNext()) {
-            println("Next: ${maxIterator.next()}")
-            cnt++
-        }
-
-        println("Count via iter: ${cnt}")
-
-
-        println("After count: ${tree.size}")
-        tree.print()
-
-        val iter = tree.iterator()
-        while (iter.hasNext())
-            println("next: ${iter.next()}")
-
-//        tree.clear()
-
-
-        5 + 3
-
-
-    }
 
     @Test
     @Tag("4")

@@ -11,13 +11,11 @@ open class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Chec
     ) {
         var left: Node<T>? = null
         var right: Node<T>? = null
-
-        override fun toString(): String = "Node(${value})"
     }
 
     fun print() = BTreePrinter.printNode(root)
 
-    protected var root: Node<T>? = null
+    protected open var root: Node<T>? = null
 
     private var _size = 0
 
@@ -145,10 +143,16 @@ open class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Chec
     override fun comparator(): Comparator<in T>? =
         null
 
-    override fun iterator(): MutableIterator<T> =
-        BinarySearchTreeIterator()
+    override fun iterator(): MutableIterator<T> {
+        return BinarySearchTreeIterator(lowerBound = false, upperBound = false)
+    }
 
-    inner class BinarySearchTreeIterator internal constructor() : MutableIterator<T> {
+    inner class BinarySearchTreeIterator internal constructor(
+        private val lowerBound: Boolean,
+        private val fromElement: T? = null,
+        private val upperBound: Boolean,
+        private val toElementExclusively: T? = null,
+    ) : MutableIterator<T> {
 
         private val iterationStack = Stack<Node<T>>()
         private val iterationParentsStack = Stack<Node<T>>()
@@ -162,9 +166,16 @@ open class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Chec
             var current: Node<T>? = this
 
             while (current != null) {
-                iterationStack.push(current)
-                iterationParentsStack.push(current)
-                current = current.left
+                if ((!lowerBound || fromElement!! <= current.value) && (!upperBound || current.value < toElementExclusively!!)) {
+                    iterationStack.push(current)
+                    iterationParentsStack.push(current)
+                }
+                if (lowerBound && current.value >= fromElement!!)
+                    current = current.left
+                else if (upperBound && current.value < toElementExclusively!!)
+                    current = current.right
+                else if (!lowerBound && !upperBound)
+                    current = current.left
             }
         }
 
@@ -185,7 +196,21 @@ open class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Chec
          *
          * Средняя
          */
-        override fun hasNext(): Boolean = iterationStack.isNotEmpty() || currentNode?.right != null
+        override fun hasNext(): Boolean = iterationStack.isNotEmpty()
+                || currentNode?.right != null
+                && (!lowerBound || currentNode!!.right!!.hasLeftNodesInBound())
+
+        private fun Node<T>.hasLeftNodesInBound(): Boolean {
+            var curr: Node<T>? = this
+
+            while (curr != null) {
+                if ((!lowerBound || curr.value >= fromElement!!) && (!upperBound || curr.value < toElementExclusively!!))
+                    return true
+                curr = curr.left
+            }
+            return false
+        }
+
 
         /**
          * Получение следующего элемента
@@ -217,8 +242,6 @@ open class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Chec
                 throw NoSuchElementException("All elements of the set was already returned!")
             }
 
-            println("Parent stack: ${iterationParentsStack.toList()}")
-
             return currentNode!!.value
         }
 
@@ -235,45 +258,23 @@ open class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Chec
          * Сложная
          */
         override fun remove() = currentNode?.let {
-
-            val minNodeFromCurrentRightChild = it.right?.minNode()
-
-            val parent = parentOfCurrentNode
-
             it.removeNode(it.value).also { (newNode, successfulRemoval) ->
-
-
-                parent?.let { parentNode ->
-                    println("${currentNode} removed! ${newNode} with ${newNode?.left} and ${newNode?.right}  set to ${parentOfCurrentNode} as ${if (parentNode.value < it.value) "right" else "left"}")
+                parentOfCurrentNode?.let { parentNode ->
                     if (parentNode.value < it.value)
                         parentNode.right = newNode
                     else
                         parentNode.left = newNode
-                } ?: run { println("parent is null! Removed ${currentNode}. new: ${newNode} with ${newNode?.left} and ${newNode?.right} instead of root ${root}"); root = newNode }
-
-
+                } ?: run { root = newNode }
 
                 if (currentNode?.right != null && currentNode?.left != null) {
                     iterationStack.push(newNode)
                     iterationParentsStack.push(newNode)
-                } else
-                /*
-//                if (currentNode?.right != null && currentNode?.left != null) {
-//                    if (currentNode!!.right != minNodeFromCurrentRightChild) currentNode!!.right?.fillIterationStack()
-//                    minNodeFromCurrentRightChild!!.fillIterationStack()
-                } else*/ if (currentNode?.right != null) {
-                currentNode!!.right?.fillIterationStack()
-//                    newNode?.run { this.fillIterationStack() /*iterationStack.push(this)*/ }
-            }
-
-
-//                newNode?.right?.fillIterationStack()
+                } else if (currentNode?.right != null) {
+                    currentNode!!.right?.fillIterationStack()
+                }
 
                 if (successfulRemoval) _size-- else throw ConcurrentModificationException()
             }
-
-//            if (!currentNodeLeftChildExists)
-//                it.right?.fillIterationStack()
 
             currentNode = null
         } ?: throw IllegalStateException("Current element does not exist!")
@@ -366,18 +367,24 @@ open class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Chec
     private fun checkInvariant(node: Node<T>): Boolean {
         val left = node.left
         if (left != null && (left.value >= node.value || !checkInvariant(left))) {
-            println("Inv failed! at ${node} with children ${node.left} and ${node.right}") ;return false }
+            return false
+        }
         val right = node.right
-        if (!(right == null || right.value > node.value && checkInvariant(right)))
-            println("Inv failed! at ${node} with children ${node.left} and ${node.right}")
 
-    return right == null || right.value > node.value && checkInvariant(right)
+        return right == null || right.value > node.value && checkInvariant(right)
     }
 
 
     private class KtBinarySearchSubTree<T : Comparable<T>>(
         private val original: KtBinarySearchTree<T>, val fromElement: T, val toElementExclusively: T
     ) : KtBinarySearchTree<T>() {
+
+        override var root: Node<T>?
+            get() = original.root
+            set(value) {
+                original.root = value
+            }
+
 
         init {
             if (fromElement > toElementExclusively)
@@ -416,83 +423,7 @@ open class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Chec
         }
 
         override fun iterator(): MutableIterator<T> =
-            BinarySearchSubTreeIterator()
-
-        inner class BinarySearchSubTreeIterator internal constructor() : MutableIterator<T> {
-
-            private val iterationStack = Stack<Node<T>>()
-
-            init {
-                original.root?.fillIterationStack()
-            }
-
-            private fun Node<T>.fillIterationStack() {
-                // push all leftmost nodes
-
-                var current: Node<T>? = this
-                while (current != null) {
-                    if (fromElement <= current.value && current.value < toElementExclusively)
-                        iterationStack.push(current)
-                    if (current.value >= fromElement)
-                        current = current.left
-                    else if (current.value < toElementExclusively)
-                        current = current.right
-                }
-            }
-
-            private var current: T? = null
-
-            /**
-             * Проверка наличия следующего элемента
-             *
-             * Функция возвращает true, если итерация по множеству ещё не окончена (то есть, если вызов next() вернёт
-             * следующий элемент множества, а не бросит исключение); иначе возвращает false.
-             *
-             * Спецификация: [java.util.Iterator.hasNext] (Ctrl+Click по hasNext)
-             */
-            override fun hasNext(): Boolean = iterationStack.isNotEmpty()
-
-            /**
-             * Получение следующего элемента
-             *
-             * Функция возвращает следующий элемент множества.
-             * Так как BinarySearchTree реализует интерфейс SortedSet, последовательные
-             * вызовы next() должны возвращать элементы в порядке возрастания.
-             *
-             * Бросает NoSuchElementException, если все элементы уже были возвращены.
-             *
-             * Спецификация: [java.util.Iterator.next] (Ctrl+Click по next)
-             */
-            override fun next(): T {
-                val current: Node<T>
-                try {
-                    current = iterationStack.pop()
-                } catch (e: EmptyStackException) {
-                    throw NoSuchElementException("All elements of the set was already returned!")
-                }
-
-                this.current = current.value
-
-                current.right?.fillIterationStack()
-                return current.value
-            }
-
-            /**
-             * Удаление предыдущего элемента
-             *
-             * Функция удаляет из множества элемент, возвращённый крайним вызовом функции next().
-             *
-             * Бросает IllegalStateException, если функция была вызвана до первого вызова next() или же была вызвана
-             * более одного раза после любого вызова next().
-             *
-             * Спецификация: [java.util.Iterator.remove] (Ctrl+Click по remove)
-             */
-            override fun remove() = current?.let {
-                remove(it)
-                current = null
-            } ?: throw IllegalStateException("Current element does not exist!")
-
-        }
+            BinarySearchTreeIterator(true, fromElement, true, toElementExclusively)
 
 
         override fun subSet(fromElement: T, toElement: T): SortedSet<T> {
@@ -549,7 +480,7 @@ open class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Chec
             height(original.root)
 
         private fun height(node: Node<T>?): Int {
-            if (node == null ) return 0
+            if (node == null) return 0
 
             return when {
                 node.value < fromElement -> height(node.right)

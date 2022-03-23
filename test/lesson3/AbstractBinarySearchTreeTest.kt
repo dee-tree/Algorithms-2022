@@ -1,13 +1,10 @@
 package lesson3
 
-import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import ru.spbstu.kotlin.generate.assume.assume
 import java.util.*
 import kotlin.NoSuchElementException
 import kotlin.math.abs
-import kotlin.math.max
 import kotlin.test.*
 
 abstract class AbstractBinarySearchTreeTest {
@@ -310,25 +307,17 @@ abstract class AbstractBinarySearchTreeTest {
             val removeIndex = random.nextInt(20) + 1
             var toRemove = 0
             val binarySet = create()
-            val d = listOf(25, 93, 15, 67, 20, 25, 82, 67, 57, 78, 82, 95, 48, 55, 14, 11, 20, 42, 71, 8)
-            controlSet.addAll(d)
-            binarySet.addAll(d)
-            if (removeIndex >= controlSet.size) continue
-            toRemove = 0
-//            toRemove = d[removeIndex]
-            println("to remove: ${toRemove}")
             print("Generated set: [")
-//            for (i in 1..20) {
-//                val newNumber = random.nextInt(100)
-//                print("$newNumber, ")
-//                controlSet.add(newNumber)
-//                binarySet.add(newNumber)
-//                if (i == removeIndex) {
-//                    toRemove = newNumber
-//                }
-//            }
+            for (i in 1..20) {
+                val newNumber = random.nextInt(100)
+                print("$newNumber, ")
+                controlSet.add(newNumber)
+                binarySet.add(newNumber)
+                if (i == removeIndex) {
+                    toRemove = newNumber
+                }
+            }
             println("]")
-//            if (removeIndex >= controlSet.size) continue
             println("Initial set: $controlSet")
             controlSet.remove(toRemove)
             println("Control set: $controlSet")
@@ -582,6 +571,7 @@ abstract class AbstractBinarySearchTreeTest {
             edgeCaseSet.subSet(-1, 1).last()
         }
         val random = Random()
+        print("Generated numbers: [")
         for (iteration in 1..100) {
             val controlSet = sortedSetOf<Int>()
             val binarySet = create()
@@ -589,7 +579,9 @@ abstract class AbstractBinarySearchTreeTest {
                 val nextInt = random.nextInt(100)
                 controlSet += nextInt
                 binarySet += nextInt
+                print("$nextInt, ")
             }
+            println("]")
             val fromElement = random.nextInt(50)
             val toElement = random.nextInt(50) + 50
             val controlSubSet = controlSet.subSet(fromElement, toElement)
