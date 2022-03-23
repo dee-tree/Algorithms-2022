@@ -309,18 +309,23 @@ abstract class AbstractBinarySearchTreeTest {
             val controlSet = TreeSet<Int>()
             val removeIndex = random.nextInt(20) + 1
             var toRemove = 0
+            val binarySet = create()
+//            val d = listOf(29, 62, 34, 58, 76, 1, 38, 37, 81, 43, 77, 36, 39, 89, 65, 58, 13, 9, 50, 28)
+//            controlSet.addAll(d)
+//            binarySet.addAll(d)
+//            toRemove = d[removeIndex]
+            print("Generated set: [")
             for (i in 1..20) {
                 val newNumber = random.nextInt(100)
+                print("$newNumber, ")
                 controlSet.add(newNumber)
+                binarySet.add(newNumber)
                 if (i == removeIndex) {
                     toRemove = newNumber
                 }
             }
+            println("]")
             println("Initial set: $controlSet")
-            val binarySet = create()
-            for (element in controlSet) {
-                binarySet += element
-            }
             controlSet.remove(toRemove)
             println("Control set: $controlSet")
             println("Removing element $toRemove from the tree through the iterator...")

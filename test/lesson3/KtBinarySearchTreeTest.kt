@@ -104,6 +104,57 @@ class KtBinarySearchTreeTest : AbstractBinarySearchTreeTest() {
     }
 
     @Test
+    fun s() {
+        val dataset = listOf(29, 62, 34, 58, 76, 1, 38, 37, 81, 43, 77, 36, 39, 89, 65, 58, 13, 9, 50, 28)
+
+        val tree = KtBinarySearchTree<Int>()
+
+        tree.addAll(dataset)
+
+        println("Before count: ${tree.size}")
+        tree.print()
+
+        var maxIterator = tree.iterator()
+
+        maxIterator.hasNext()
+
+        var cnt = 0
+
+        while (maxIterator.hasNext()) {
+            val next = maxIterator.next()
+            cnt++
+            println(next)
+
+            if (next == 38)
+                break
+        }
+
+        maxIterator.remove()
+
+        while(maxIterator.hasNext()) {
+            println("Next: ${maxIterator.next()}")
+            cnt++
+        }
+
+        println("Count via iter: ${cnt}")
+
+
+        println("After count: ${tree.size}")
+        tree.print()
+
+        val iter = tree.iterator()
+        while (iter.hasNext())
+            println("next: ${iter.next()}")
+
+//        tree.clear()
+
+
+        5 + 3
+
+
+    }
+
+    @Test
     @Tag("4")
     fun headSetTest() {
         doHeadSetTest()
