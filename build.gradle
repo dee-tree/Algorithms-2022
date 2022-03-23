@@ -38,6 +38,7 @@ repositories {
         url = 'https://maven.vorpal-research.science'
     }
     mavenLocal()
+    jcenter()
 }
 
 dependencies {

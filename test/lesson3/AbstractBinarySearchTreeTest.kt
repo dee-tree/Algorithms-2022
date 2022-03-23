@@ -310,21 +310,25 @@ abstract class AbstractBinarySearchTreeTest {
             val removeIndex = random.nextInt(20) + 1
             var toRemove = 0
             val binarySet = create()
-//            val d = listOf(29, 62, 34, 58, 76, 1, 38, 37, 81, 43, 77, 36, 39, 89, 65, 58, 13, 9, 50, 28)
-//            controlSet.addAll(d)
-//            binarySet.addAll(d)
+            val d = listOf(25, 93, 15, 67, 20, 25, 82, 67, 57, 78, 82, 95, 48, 55, 14, 11, 20, 42, 71, 8)
+            controlSet.addAll(d)
+            binarySet.addAll(d)
+            if (removeIndex >= controlSet.size) continue
+            toRemove = 0
 //            toRemove = d[removeIndex]
+            println("to remove: ${toRemove}")
             print("Generated set: [")
-            for (i in 1..20) {
-                val newNumber = random.nextInt(100)
-                print("$newNumber, ")
-                controlSet.add(newNumber)
-                binarySet.add(newNumber)
-                if (i == removeIndex) {
-                    toRemove = newNumber
-                }
-            }
+//            for (i in 1..20) {
+//                val newNumber = random.nextInt(100)
+//                print("$newNumber, ")
+//                controlSet.add(newNumber)
+//                binarySet.add(newNumber)
+//                if (i == removeIndex) {
+//                    toRemove = newNumber
+//                }
+//            }
             println("]")
+//            if (removeIndex >= controlSet.size) continue
             println("Initial set: $controlSet")
             controlSet.remove(toRemove)
             println("Control set: $controlSet")

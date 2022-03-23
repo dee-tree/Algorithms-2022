@@ -242,12 +242,6 @@ open class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Chec
 
             it.removeNode(it.value).also { (newNode, successfulRemoval) ->
 
-                if (currentNode?.right != null && currentNode?.left != null) {
-                    if (currentNode!!.right != minNodeFromCurrentRightChild) currentNode!!.right?.fillIterationStack()
-                    minNodeFromCurrentRightChild!!.fillIterationStack()
-                } else if (currentNode?.right != null) {
-                    newNode?.run { this.fillIterationStack() /*iterationStack.push(this)*/ }
-                }
 
                 parent?.let { parentNode ->
                     println("${currentNode} removed! ${newNode} with ${newNode?.left} and ${newNode?.right}  set to ${parentOfCurrentNode} as ${if (parentNode.value < it.value) "right" else "left"}")
@@ -259,6 +253,18 @@ open class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Chec
 
 
 
+                if (currentNode?.right != null && currentNode?.left != null) {
+                    iterationStack.push(newNode)
+                    iterationParentsStack.push(newNode)
+                } else
+                /*
+//                if (currentNode?.right != null && currentNode?.left != null) {
+//                    if (currentNode!!.right != minNodeFromCurrentRightChild) currentNode!!.right?.fillIterationStack()
+//                    minNodeFromCurrentRightChild!!.fillIterationStack()
+                } else*/ if (currentNode?.right != null) {
+                currentNode!!.right?.fillIterationStack()
+//                    newNode?.run { this.fillIterationStack() /*iterationStack.push(this)*/ }
+            }
 
 
 //                newNode?.right?.fillIterationStack()

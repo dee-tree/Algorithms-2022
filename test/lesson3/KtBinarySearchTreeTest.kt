@@ -70,6 +70,12 @@ class KtBinarySearchTreeTest : AbstractBinarySearchTreeTest() {
         doIteratorRemoveTest()
     }
 
+    @RepeatedTest(1_000)
+//    @Tag("Just iteratorRemoveTest, but with more iterations")
+    fun iteratorRemoveRepeatedTest() {
+        doIteratorRemoveTest()
+    }
+
     @Test
     fun `iteratorRemoveTest from empty set`() {
         `do iteratorRemoveTest from empty set`()
@@ -105,7 +111,9 @@ class KtBinarySearchTreeTest : AbstractBinarySearchTreeTest() {
 
     @Test
     fun s() {
-        val dataset = listOf(29, 62, 34, 58, 76, 1, 38, 37, 81, 43, 77, 36, 39, 89, 65, 58, 13, 9, 50, 28)
+
+        //TODO DIMA TEST ME 25, 93, 15, 67, 20, 25, 82, 67, 57, 78, 82, 95, 48, 55, 14, 11, 20, 42, 71, 8. I am cycled
+        val dataset = listOf(56, 56, 18, 28, 61, 54, 42, 42, 73, 90, 47, 53, 73, 99, 21, 42, 3, 18, 96, 81)
 
         val tree = KtBinarySearchTree<Int>()
 
@@ -125,7 +133,7 @@ class KtBinarySearchTreeTest : AbstractBinarySearchTreeTest() {
             cnt++
             println(next)
 
-            if (next == 38)
+            if (next == 28)
                 break
         }
 
