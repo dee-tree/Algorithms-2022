@@ -31,4 +31,9 @@ class KtTrieTest : AbstractTrieTest() {
         doIteratorRemoveTest()
     }
 
+    @RepeatedTest(150)
+    fun `one line iterator remove test`() {
+        `do one line iterator remove test`()
+    }
+
 }

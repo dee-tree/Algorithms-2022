@@ -1,7 +1,6 @@
 package lesson4
 
 import java.util.*
-import kotlin.NoSuchElementException
 
 /**
  * Префиксное дерево для строк
