@@ -8,11 +8,16 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
         require(bits in 2..31)
     }
 
+    private enum class Labels {
+        REMOVED
+    }
+
     private val capacity = 1 shl bits
 
     private val storage = Array<Any?>(capacity) { null }
 
     override var size: Int = 0
+        private set
 
     /**
      * Индекс в таблице, начиная с которого следует искать данный элемент
@@ -51,7 +56,7 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
         val startingIndex = element.startingIndex()
         var index = startingIndex
         var current = storage[index]
-        while (current != null) {
+        while (current != null && current != Labels.REMOVED) {
             if (current == element) {
                 return false
             }
@@ -76,7 +81,18 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
      * Средняя
      */
     override fun remove(element: T): Boolean {
-        TODO("not implemented")
+        var index = element.startingIndex()
+        var current = storage[index]
+        while (current != null && current != Labels.REMOVED) {
+            if (current == element) {
+                storage[index] = Labels.REMOVED
+                size--
+                return true
+            }
+            index = (index + 1) % capacity
+            current = storage[index]
+        }
+        return false
     }
 
     /**
