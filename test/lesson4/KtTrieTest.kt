@@ -1,12 +1,12 @@
 package lesson4
 
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 
 class KtTrieTest : AbstractTrieTest() {
 
-    override fun create(): MutableSet<String> =
-        KtTrie()
+    override fun create(): MutableSet<String> = KtTrie()
 
     @Test
     @Tag("Example")
@@ -18,6 +18,11 @@ class KtTrieTest : AbstractTrieTest() {
     @Tag("7")
     fun iteratorTest() {
         doIteratorTest()
+    }
+
+    @RepeatedTest(150)
+    fun `one line iterator test`() {
+        `do one line iterator test`()
     }
 
     @Test

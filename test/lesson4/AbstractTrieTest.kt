@@ -68,6 +68,51 @@ abstract class AbstractTrieTest {
         }
     }
 
+    protected fun `do one line iterator test`() {
+        implementationTest { create().iterator().hasNext() }
+        implementationTest { create().iterator().next() }
+        val size = (1..15).random()
+        val controlSet = sortedSetOf<String>()
+        val base = Random().nextString("abcdefghijklmnopqrstu", size)
+        for (i in 1..size) {
+            val string = base.substring(0, (1..size).random())
+            controlSet.add(string)
+        }
+        println("Control set: $controlSet")
+        val trieSet = create()
+        assertFalse(
+            trieSet.iterator().hasNext(),
+            "Iterator of an empty set should not have any next elements."
+        )
+        for (element in controlSet) {
+            trieSet += element
+        }
+        val iterator1 = trieSet.iterator()
+        val iterator2 = trieSet.iterator()
+        println("Checking if calling hasNext() changes the state of the iterator...")
+        while (iterator1.hasNext()) {
+            assertEquals(
+                iterator2.next(), iterator1.next(),
+                "Calling TrieIterator.hasNext() changes the state of the iterator."
+            )
+        }
+
+        assertTrue(!iterator2.hasNext(), "Iterators of the same set are different length!")
+        val trieIter = trieSet.iterator()
+        println("Checking if the iterator traverses the entire set...")
+        while (trieIter.hasNext()) {
+            controlSet.remove(trieIter.next())
+        }
+        assertTrue(
+            controlSet.isEmpty(),
+            "TrieIterator doesn't traverse the entire set."
+        )
+        assertFailsWith<NoSuchElementException>("Something was supposedly returned after the elements ended") {
+            trieIter.next()
+        }
+        println("All clear!")
+    }
+
     protected fun doIteratorTest() {
         implementationTest { create().iterator().hasNext() }
         implementationTest { create().iterator().next() }
@@ -96,6 +141,8 @@ abstract class AbstractTrieTest {
                     "Calling TrieIterator.hasNext() changes the state of the iterator."
                 )
             }
+
+            assertTrue(!iterator2.hasNext(), "Iterators of the same set are different length!")
             val trieIter = trieSet.iterator()
             println("Checking if the iterator traverses the entire set...")
             while (trieIter.hasNext()) {
@@ -139,10 +186,13 @@ abstract class AbstractTrieTest {
                 iterator.remove()
             }
             var counter = trieSet.size
+            print("Iterate through: ")
             while (iterator.hasNext()) {
                 val element = iterator.next()
+                print("$element, ")
                 counter--
                 if (element == toRemove) {
+                    println("\n Element to be removed found!")
                     iterator.remove()
                     assertFailsWith<IllegalStateException>("Trie.remove() was successfully called twice in a row.") {
                         iterator.remove()
