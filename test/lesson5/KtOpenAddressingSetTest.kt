@@ -22,14 +22,29 @@ class KtOpenAddressingSetTest : AbstractOpenAddressingSetTest() {
     }
 
     @Test
+    fun `removeTest in empty set`() {
+        `do removeTest in empty set`()
+    }
+
+    @Test
     @Tag("5")
     fun iteratorTest() {
         doIteratorTest()
     }
 
     @Test
+    fun `iteratorTest with empty set`() {
+        `do iteratorTest with empty set`()
+    }
+
+    @Test
     @Tag("8")
     fun iteratorRemoveTest() {
         doIteratorRemoveTest()
+    }
+
+    @Test
+    fun `iteratorRemoveTest from empty set`() {
+        `do iteratorRemoveTest from empty set`()
     }
 }

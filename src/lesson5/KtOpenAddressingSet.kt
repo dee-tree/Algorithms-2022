@@ -1,5 +1,7 @@
 package lesson5
 
+import java.util.NoSuchElementException
+
 /**
  * Множество(таблица) с открытой адресацией на 2^bits элементов без возможности роста.
  */
@@ -79,6 +81,11 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
      * Спецификация: [java.util.Set.remove] (Ctrl+Click по remove)
      *
      * Средняя
+     *
+     * Complexity:
+     * * Time: average is O(1) - without collisions, the worst is O(n) - with collisions
+     * * Space: O(1)
+     * parameter can be both size of the set and size of the storage, i.e. capacity of the set
      */
     override fun remove(element: T): Boolean {
         var index = element.startingIndex()
@@ -105,7 +112,59 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
      *
      * Средняя (сложная, если поддержан и remove тоже)
      */
-    override fun iterator(): MutableIterator<T> {
-        TODO("not implemented")
+    override fun iterator(): MutableIterator<T> = OpenAddressingSetIterator()
+
+
+    inner class OpenAddressingSetIterator internal constructor() : MutableIterator<T> {
+
+        private var currentIdx = -1
+
+        /**
+         * Complexity:
+         * * Time: O(1/L), where L is load factor (size / storage.size), or the worst case is O(n) when table is free, and the best one is O(1) when all places are busy
+         * * Space: O(1)
+         * parameter is size of storage, i.e. capacity of the set
+         */
+        override fun hasNext(): Boolean {
+            for (i in (currentIdx + 1)..storage.lastIndex) {
+                // in other words: if storage[i] is T
+                if (storage[i] != null && storage[i] != Labels.REMOVED)
+                    return true
+            }
+            return false
+        }
+
+        /**
+         * Complexity:
+         * * Time: O(1/L), where L is load factor (size / storage.size), or the worst case is O(n) when table is free, and the best one is O(1) when all places are busy
+         * * Space: O(1)
+         * parameter is size of storage, i.e. capacity of the set
+         */
+        override fun next(): T {
+            for (i in (currentIdx + 1)..storage.lastIndex) {
+                if (storage[i] != null && storage[i] != Labels.REMOVED) {
+                    currentIdx = i
+                    return storage[i] as T
+                }
+            }
+
+            throw NoSuchElementException("Oops! There no element to be next")
+        }
+
+        /**
+         * Complexity:
+         * * Time: O(1)
+         * * Space: O(1)
+         * parameter can be both size of the set and size of the storage, i.e. capacity of the set
+         */
+        override fun remove() {
+            if (currentIdx == -1)
+                throw IllegalStateException("No element to be removed!")
+
+            storage[currentIdx] = Labels.REMOVED
+            size--
+
+        }
+
     }
 }

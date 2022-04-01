@@ -1,5 +1,6 @@
 package lesson5
 
+import org.junit.jupiter.api.assertThrows
 import ru.spbstu.kotlin.generate.util.nextString
 import java.util.*
 import kotlin.NoSuchElementException
@@ -79,6 +80,16 @@ abstract class AbstractOpenAddressingSetTest {
         }
     }
 
+    protected fun `do removeTest in empty set`() {
+        val empty = create<Any>(5)
+
+        assertFalse { empty.remove(0) }
+
+        assertTrue { empty.size == 0 }
+        assertFalse { empty.contains(0) }
+
+    }
+
     protected fun doIteratorTest() {
         val random = Random()
         for (iteration in 1..100) {
@@ -119,6 +130,15 @@ abstract class AbstractOpenAddressingSetTest {
             }
             println("All clear!")
         }
+    }
+
+    protected fun `do iteratorTest with empty set`() {
+        val empty = create<Any>(5)
+
+        val iterator = empty.iterator()
+
+        assertFalse { iterator.hasNext() }
+        assertThrows<NoSuchElementException> { iterator.next() }
     }
 
     protected fun doIteratorRemoveTest() {
@@ -176,5 +196,13 @@ abstract class AbstractOpenAddressingSetTest {
             }
             println("All clear!")
         }
+    }
+
+    protected fun `do iteratorRemoveTest from empty set`() {
+        val empty = create<Any>(5)
+
+        val iterator = empty.iterator()
+
+        assertThrows<IllegalStateException> { iterator.remove() }
     }
 }
