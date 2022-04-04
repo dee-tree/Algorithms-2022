@@ -2,6 +2,10 @@
 
 package lesson6
 
+import lesson6.Graph.Edge
+import lesson6.Graph.Vertex
+import lesson6.impl.GraphBuilder
+
 /**
  * Эйлеров цикл.
  * Средняя
@@ -27,9 +31,51 @@ package lesson6
  *
  * Справка: Эйлеров цикл -- это цикл, проходящий через все рёбра
  * связного графа ровно по одному разу
+ *
+ * Complexity:
+ *  * Time: O(n)
+ *  * Space: O(n)
+ *
  */
-fun Graph.findEulerLoop(): List<Graph.Edge> {
-    TODO()
+fun Graph.findEulerLoop(): List<Edge> {
+
+    // check on Eulerian cycle existence
+    this.vertices.forEach {
+        val neighbours = getNeighbors(it).size
+        if (neighbours == 0 || neighbours % 2 != 0)
+            return emptyList()
+    }
+
+    val first = vertices.firstOrNull() ?: return emptyList()
+    var current = first
+
+    val eulerLoop = mutableListOf<Edge>()
+    val handledEdges = hashSetOf<Edge>()
+
+    do {
+        val neighbours = getNeighbors(current, handledEdges)
+
+        for (neighbour in neighbours) {
+            val currentEdge = getConnection(current, neighbour)!!
+            if (neighbours.size == 1 || !isBridge(currentEdge, handledEdges)) {
+                eulerLoop += currentEdge
+                handledEdges += currentEdge
+                current = neighbour
+                break
+            }
+        }
+
+    } while (current != first)
+
+    return eulerLoop
+}
+
+fun Graph.getNeighbors(vertex: Vertex, excluded: Set<Edge>): Set<Vertex> {
+    return getNeighbors(vertex)
+        .map { neighbour -> getConnection(vertex, neighbour)!! }
+        .minus(excluded)
+        .map { if (vertex == it.begin) it.end else it.begin }
+        .toSet()
 }
 
 /**
@@ -59,10 +105,19 @@ fun Graph.findEulerLoop(): List<Graph.Edge> {
  * E    F    I
  * |
  * J ------------ K
+ *
+ * Complexity:
+ *  * Time: O((v + e) log v)
+ *  * Space: O(v)
+ *
  */
-fun Graph.minimumSpanningTree(): Graph {
-    TODO()
-}
+fun Graph.minimumSpanningTree(): Graph = GraphBuilder().also {
+    val first = vertices.firstOrNull() ?: return@also
+    vertices.forEach { vertex -> it.addVertex(vertex.name) }
+    shortestPath(first)
+        .mapNotNull { it.value.prev?.to(it.value.vertex) }
+        .forEach { edge -> it.addConnection(edge.first, edge.second) }
+}.build()
 
 /**
  * Максимальное независимое множество вершин в графе без циклов.

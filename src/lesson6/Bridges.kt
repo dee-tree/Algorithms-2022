@@ -1,5 +1,8 @@
 package lesson6
 
+import lesson6.Graph.Edge
+import lesson6.Graph.Vertex
+
 fun Graph.findBridges(): Set<Graph.Edge> =
     BridgeTraverser(this).findBridges()
 
@@ -44,4 +47,28 @@ private class BridgeTraverser(val graph: Graph) {
             }
         }
     }
+}
+
+fun Graph.isBridge(edge: Edge, excluded: Set<Edge>? = null): Boolean {
+    val connectionsInitially = dfsCount(edge.begin, excluded)
+    val connectionsAfterRemove = dfsCount(edge.begin, excluded?.plus(edge) ?: hashSetOf(edge))
+
+    return connectionsInitially != connectionsAfterRemove
+}
+
+fun Graph.dfsCount(vertex: Vertex, excluded: Set<Edge>? = null): Int {
+    fun dfsCount(vertex: Vertex, visited: MutableSet<Vertex>): Int {
+        visited += vertex
+        var count = 1
+
+        getNeighbors(vertex).forEach { neighbour ->
+            if (neighbour !in visited && (excluded == null || getConnection(vertex, neighbour) !in excluded)) {
+                count += dfsCount(neighbour, visited)
+            }
+        }
+        return count
+    }
+
+
+    return dfsCount(vertex, hashSetOf())
 }
