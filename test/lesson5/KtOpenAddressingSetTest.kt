@@ -1,5 +1,6 @@
 package lesson5
 
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 
@@ -26,6 +27,11 @@ class KtOpenAddressingSetTest : AbstractOpenAddressingSetTest() {
         `do removeTest in empty set`()
     }
 
+    @RepeatedTest(100)
+    fun `removeTest with full set`() {
+        `do removeTest with full set`()
+    }
+
     @Test
     @Tag("5")
     fun iteratorTest() {
@@ -35,6 +41,11 @@ class KtOpenAddressingSetTest : AbstractOpenAddressingSetTest() {
     @Test
     fun `iteratorTest with empty set`() {
         `do iteratorTest with empty set`()
+    }
+
+    @RepeatedTest(100)
+    fun `iteratorRemoveTest with full set`() {
+        `do iteratorRemoveTest with full set`()
     }
 
     @Test

@@ -3,12 +3,8 @@ package lesson5
 import org.junit.jupiter.api.assertThrows
 import ru.spbstu.kotlin.generate.util.nextString
 import java.util.*
-import kotlin.NoSuchElementException
 import kotlin.math.abs
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 abstract class AbstractOpenAddressingSetTest {
 
@@ -90,6 +86,42 @@ abstract class AbstractOpenAddressingSetTest {
 
     }
 
+    protected fun `do removeTest with full set`() {
+        val random = Random()
+        val bits = (3..6).random()
+        val capacity = 1 shl bits
+        val set = create<Int>(bits)
+
+        val controlSet = mutableSetOf<Int>()
+
+        for (i in 0 until capacity) {
+            controlSet.add(random.nextInt())
+        }
+        set.addAll(controlSet)
+        println("Set: $set")
+
+        assertEquals(capacity, set.size)
+
+        var remain = capacity
+
+        while (remain > 0) {
+            val elemToBeRemoved = controlSet.random()
+            println("Removing element $elemToBeRemoved from set...")
+            assertContains(set, elemToBeRemoved)
+            set.remove(elemToBeRemoved)
+            val removed = controlSet.remove(elemToBeRemoved)
+            println("Set after remove: ${set}. removed = $removed")
+            assertEquals(controlSet.size, set.size)
+            assertFalse(elemToBeRemoved in set)
+            remain--
+
+            println("Element $elemToBeRemoved removed from set. Set: $set")
+        }
+
+        assertTrue(set.isEmpty())
+
+    }
+
     protected fun doIteratorTest() {
         val random = Random()
         for (iteration in 1..100) {
@@ -139,6 +171,39 @@ abstract class AbstractOpenAddressingSetTest {
 
         assertFalse { iterator.hasNext() }
         assertThrows<NoSuchElementException> { iterator.next() }
+    }
+
+    protected fun `do iteratorRemoveTest with full set`() {
+        val random = Random()
+        val bits = (3..6).random()
+        val capacity = 1 shl bits
+        val set = create<Int>(bits)
+
+        val controlSet = mutableSetOf<Int>()
+
+        for (i in 0 until capacity) {
+            controlSet.add(random.nextInt())
+        }
+        set.addAll(controlSet)
+
+        assertEquals(capacity, set.size)
+
+        var remain = capacity
+        val iterator = set.iterator()
+
+        while (iterator.hasNext()) {
+            assertTrue(remain > 0)
+
+            val next = iterator.next()
+            assertContains(controlSet, next)
+            iterator.remove()
+            assertFalse(next in set)
+            remain--
+        }
+
+        assertTrue(set.isEmpty())
+        assertEquals(0, remain)
+
     }
 
     protected fun doIteratorRemoveTest() {

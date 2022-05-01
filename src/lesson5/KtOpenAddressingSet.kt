@@ -32,13 +32,15 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
      * Проверка, входит ли данный элемент в таблицу
      */
     override fun contains(element: T): Boolean {
-        var index = element.startingIndex()
+        val startingIndex = element.startingIndex()
+        var index = startingIndex
         var current = storage[index]
         while (current != null) {
             if (current == element) {
                 return true
             }
             index = (index + 1) % capacity
+            if (index == startingIndex) return false
             current = storage[index]
         }
         return false
@@ -88,15 +90,17 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
      * parameter can be both size of the set and size of the storage, i.e. capacity of the set
      */
     override fun remove(element: T): Boolean {
-        var index = element.startingIndex()
+        val startingIndex = element.startingIndex()
+        var index = startingIndex
         var current = storage[index]
-        while (current != null && current != Labels.REMOVED) {
+        while (current != null) {
             if (current == element) {
                 storage[index] = Labels.REMOVED
                 size--
                 return true
             }
             index = (index + 1) % capacity
+            if (index == startingIndex) return false
             current = storage[index]
         }
         return false
@@ -119,19 +123,14 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
 
         private var currentIdx = -1
 
-        /**
-         * Complexity:
-         * * Time: O(1/L), where L is load factor (size / storage.size), or the worst case is O(n) when table is free, and the best one is O(1) when all places are busy
-         * * Space: O(1)
-         * parameter is size of storage, i.e. capacity of the set
-         */
-        override fun hasNext(): Boolean {
+        private fun nextIdxOrNull(): Int? {
             for (i in (currentIdx + 1)..storage.lastIndex) {
-                // in other words: if storage[i] is T
-                if (storage[i] != null && storage[i] != Labels.REMOVED)
-                    return true
+                // in other words: if storage[i] is T (there are only null, T and Labels.REMOVED can be found in storage)
+                if (storage[i] != null && storage[i] != Labels.REMOVED) {
+                    return i
+                }
             }
-            return false
+            return null
         }
 
         /**
@@ -140,15 +139,19 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
          * * Space: O(1)
          * parameter is size of storage, i.e. capacity of the set
          */
-        override fun next(): T {
-            for (i in (currentIdx + 1)..storage.lastIndex) {
-                if (storage[i] != null && storage[i] != Labels.REMOVED) {
-                    currentIdx = i
-                    return storage[i] as T
-                }
-            }
+        override fun hasNext(): Boolean = nextIdxOrNull() != null
 
-            throw NoSuchElementException("Oops! There no element to be next")
+        /**
+         * Complexity:
+         * * Time: O(1/L), where L is load factor (size / storage.size), or the worst case is O(n) when table is free, and the best one is O(1) when all places are busy
+         * * Space: O(1)
+         * parameter is size of storage, i.e. capacity of the set
+         */
+        override fun next(): T {
+            return nextIdxOrNull()?.let {
+                currentIdx = it
+                storage[it] as T
+            } ?: throw NoSuchElementException("Oops! There no element to be next")
         }
 
         /**
