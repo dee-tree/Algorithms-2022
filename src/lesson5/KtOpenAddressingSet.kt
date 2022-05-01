@@ -87,7 +87,7 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
      * Complexity:
      * * Time: average is O(1) - without collisions, the worst is O(n) - with collisions
      * * Space: O(1)
-     * parameter can be both size of the set and size of the storage, i.e. capacity of the set
+     * parameter is the size of the set
      */
     override fun remove(element: T): Boolean {
         val startingIndex = element.startingIndex()
