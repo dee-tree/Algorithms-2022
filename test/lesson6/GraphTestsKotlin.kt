@@ -1,5 +1,6 @@
 package lesson6
 
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Tag
 import kotlin.test.Test
 
@@ -11,10 +12,20 @@ class GraphTestsKotlin : AbstractGraphTests() {
         findEulerLoop { findEulerLoop() }
     }
 
+    @RepeatedTest(100)
+    fun `findEulerLoop disconnected graph test`() {
+        `do findEulerLoop disconnected graph test` { findEulerLoop() }
+    }
+
     @Test
     @Tag("7")
     fun testMinimumSpanningTree() {
         minimumSpanningTree { minimumSpanningTree() }
+    }
+
+    @RepeatedTest(100)
+    fun `testMinimumSpanningTree disconnected graph test`() {
+        `do testMinimumSpanningTree disconnected graph test` { minimumSpanningTree() }
     }
 
     @Test

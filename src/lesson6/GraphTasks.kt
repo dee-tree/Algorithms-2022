@@ -112,6 +112,7 @@ fun Graph.getNeighbors(vertex: Vertex, excluded: Set<Edge>): Set<Vertex> {
  *
  */
 fun Graph.minimumSpanningTree(): Graph = GraphBuilder().also {
+    vertices.forEach { if (this@minimumSpanningTree.getConnections(it).isEmpty()) return@also }
     val first = vertices.firstOrNull() ?: return@also
     vertices.forEach { vertex -> it.addVertex(vertex.name) }
     shortestPath(first)

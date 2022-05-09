@@ -28,6 +28,32 @@ abstract class AbstractGraphTests {
         }
     }
 
+    fun `do findEulerLoop disconnected graph test`(findEulerLoop: Graph.() -> List<Graph.Edge>) {
+        val graph = GraphBuilder().apply {
+
+            val firstName = 'a'
+            val size = (3..6).random()
+
+            val vertices = List(size) {
+                addVertex((firstName + it).toString())
+            }
+
+            val rndVert = vertices.random()
+
+            for (i in vertices.indices) {
+                for (j in (i + 1) until vertices.size) {
+                    if (vertices[i] == rndVert || vertices[j] == rndVert)
+                        continue
+
+                    addConnection(vertices[i], vertices[j])
+                }
+            }
+        }.build()
+
+        assertEquals(0, graph.findEulerLoop().size)
+    }
+
+
     fun findEulerLoop(findEulerLoop: Graph.() -> List<Graph.Edge>) {
         val emptyGraph = GraphBuilder().build()
         val emptyLoop = emptyGraph.findEulerLoop()
@@ -121,6 +147,34 @@ abstract class AbstractGraphTests {
         }.build()
         val loop3 = graph3.findEulerLoop()
         loop3.assert(shouldExist = false, graph = graph3)
+    }
+
+    fun `do testMinimumSpanningTree disconnected graph test`(minimumSpanningTree: Graph.() -> Graph) {
+        val graph = GraphBuilder().apply {
+
+            val firstName = 'a'
+            val size = (3..6).random()
+
+            val vertices = List(size) {
+                addVertex((firstName + it).toString())
+            }
+
+            val rndVert = vertices.random()
+
+            for (i in vertices.indices) {
+                for (j in (i + 1) until vertices.size) {
+                    if (vertices[i] == rndVert || vertices[j] == rndVert)
+                        continue
+
+                    addConnection(vertices[i], vertices[j])
+                }
+            }
+        }.build()
+
+        graph.minimumSpanningTree().vertices.forEach {
+            println(graph.minimumSpanningTree().getConnections(it))
+        }
+        assertEquals(0, graph.minimumSpanningTree().vertices.size)
     }
 
     fun minimumSpanningTree(minimumSpanningTree: Graph.() -> Graph) {
